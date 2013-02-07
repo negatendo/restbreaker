@@ -1,7 +1,7 @@
 
 //these will probably be user configurable things
-var userWorkSessionLength = 5; //minutes
-var userRestBreakLength = 5; //minutes
+var userWorkSessionLength = 45; //minutes
+var userRestBreakLength = 10; //minutes
 
 //I like to use a global object to contain and manage all global variables
 var myGlobals = {};
@@ -9,6 +9,11 @@ var myGlobals = {};
 //turn all of the above values into seconds
 myGlobals.workSessionLength = userWorkSessionLength * 60;
 myGlobals.restBreakLength = userRestBreakLength * 60;
+
+//statistics that we can use
+myGlobals.scriptUptime = 0; //total seconds script has been running
+myGlobals.timeSinceLastClockUpdate = 0; //elapsed time in seconds since the last clock display update
+myGlobals.clockUpdateFrequency = 60; //seconds to pass between clock display updates
 
 //initally of course we will be working, so set that status as well as the first break time
 setStatus('working');
@@ -35,7 +40,8 @@ function setStatus(theStatus)
 
 //updates the display with whatever is going on!
 function refresh() {
-	//show the appropriate output based on the current stauts
+
+	//run the appropriate calcluations based off current status
 	switch (myGlobals.currentStatus) {
 		case 'working':
 			refreshWorking();
@@ -44,6 +50,15 @@ function refresh() {
 			refreshResting();
 			break;
 	}
+
+	//update the clock display
+	if (myGlobals.timeSinceLastClockUpdate >= myGlobals.clockUpdateFrequency)
+		clockDisplayUpdate();
+
+	//update statistics
+	myGlobals.scriptUptime = myGlobals.scriptUptime + 1;
+	myGlobals.timeSinceLastClockUpdate = myGlobals.timeSinceLastClockUpdate + 1;
+
 }
 
 //fetches the current time in seconds since unix epoch
@@ -89,17 +104,9 @@ function makeHumanReadable(unixTime) {
 function refreshWorking() {
 	//get the current time
 	var currentTime = getClock();
-	console.log("Current time: " + makeHumanReadable(currentTime));
-
-	//show break time
-	console.log("Break will be at: " + makeHumanReadable(myGlobals.nextEventTime));
 
 	//get the minutes remaining until the break
 	var minutesUntilBreak = getMinutesUntilNextEvent(currentTime,myGlobals.nextEventTime);
-	console.log("Minutes left until break: " + minutesUntilBreak)
-
-	//a line for readability sake
-	console.log('-------------------------------------------------');
 
 	//if it's break time, say so and then change our current status
 	if (minutesUntilBreak <= 0) {
@@ -113,17 +120,9 @@ function refreshResting()
 {
 	//get the current time
 	var currentTime = getClock();
-	console.log("Current time: " + makeHumanReadable(currentTime));
-
-	//show work time
-	console.log("Work will begin at: " + makeHumanReadable(myGlobals.nextEventTime));
 
 	//get the minutes remaining until work begins
 	var minutesUntilWork = getMinutesUntilNextEvent(currentTime,myGlobals.nextEventTime);
-	console.log("Minutes left until work begins: " + minutesUntilWork)
-
-	//a line for readability sake
-	console.log('-------------------------------------------------');
 
 	//if it's time to get back to work say so and then change our current status
 	if (minutesUntilWork <= 0) {
@@ -132,3 +131,12 @@ function refreshResting()
 	}
 }
 
+function clockDisplayUpdate()
+{	
+	//get the current time
+	var currentTime = getClock();
+	console.log('Time until next event: ' + getMinutesUntilNextEvent(currentTime,myGlobals.nextEventTime));
+
+	//reset the display update timer
+	myGlobals.timeSinceLastClockUpdate = 0;
+}
