@@ -113,7 +113,7 @@ rb = {
 		//if it's break time, say so and then change our current status
 		if (minutesUntilBreak <= 0) {
 			console.log('BREAK TIME!');
-			setStatus('resting');
+			rb.setStatus('resting');
 		}
 	},
 
@@ -129,7 +129,7 @@ rb = {
 		//if it's time to get back to work say so and then change our current status
 		if (minutesUntilWork <= 0) {
 			console.log('BACK TO WORK!');
-			setStatus('working');
+			rb.setStatus('working');
 		}
 	},
 
