@@ -38,6 +38,12 @@ rb = {
 		return;
 	},
 
+	//returns status
+	getStatus: function(theStatus)
+	{
+		return rbGlobals.currentStatus;
+	},
+
 	//updates the display with whatever is going on!
 	refresh: function() {
 
@@ -142,12 +148,30 @@ rb = {
 
 		//reset the display update timer
 		rbGlobals.timeSinceLastClockUpdate = 0;
+
+		//update the displays
+		$('#status').html('Currently ' + rb.getStatus());
+		$('#clock').html(rb.getMinutesUntilNextEvent(currentTime,rbGlobals.nextEventTime) + ' minutes left.');
+		document.title = rb.getStatus() + ' - ' + rb.getMinutesUntilNextEvent(currentTime,rbGlobals.nextEventTime) + ' minutes left.'
 	},
 
 }; //end of rb object
 
-//initally of course we will be working, so set that status as well as the first break time
-rb.setStatus('working');
+//start our engines
+$( document ).ready(function() {
+	console.log('Getting ready...');
 
-//start the program by calling refresh every second
-var refreshInterval = setInterval(function(){rb.refresh()},1000);
+	//initally of course we will be working, so set that status as well as the first break time
+	rb.setStatus('working');
+
+	//start the program by calling refresh every second
+	var refreshInterval = setInterval(function(){rb.refresh()},1000);
+
+	//inital refresh and display update
+	rb.refresh();
+	rb.clockDisplayUpdate();
+
+	console.log('Ready!');
+});
+
+
