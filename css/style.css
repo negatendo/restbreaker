@@ -1,1 +1,10 @@
-﻿#foo { font-size: xx-large; }
+﻿body 
+{
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  color: white;
+  text-align: left;
+  background-color: #1E9CD7;
+}
+
+#foo { font-size: xx-large; }
