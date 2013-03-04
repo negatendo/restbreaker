@@ -18,15 +18,6 @@ describe ("rb.js", function () {
 			expect(rbGlobals.scriptUptime).toEqual(jasmine.any(Number));
 		});
 
-		it("script uptime should not yet be counting", function () {
-			var current_uptime = rbGlobals.scriptUptime;
-			expect(current_uptime).toEqual(0);
-		});
-
-		it("time since last update should be zero", function () {
-			expect(rbGlobals.timeSinceLastClockUpdate).toEqual(0);
-		});
-
 		it("update frequency should be 60 seconds", function () {
 			expect(rbGlobals.clockUpdateFrequency).toEqual(60);
 		});
@@ -120,6 +111,21 @@ describe ("rb.js", function () {
 	 	it('setStatus to working updates nextEventTime', function () {
 			rb.setStatus('working');
 			expect(rbGlobals.nextEventTime)		
+	 	});
+	});
+
+	//test getStatus()
+	describe("getStatus()", function() {
+	 	//getStatus returns working when working
+	 	it('getStatus returns working when working', function () {
+			rb.setStatus('working');
+			expect(rb.getStatus()).toEqual('working')		
+	 	});
+
+	 	//getStatus returns resting when resting
+	 	it('getStatus returns resting when resting', function () {
+			rb.setStatus('resting');
+			expect(rb.getStatus()).toEqual('resting')		
 	 	});
 	});
 
