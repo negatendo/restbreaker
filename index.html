@@ -6,13 +6,18 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:700,300' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/style.css" />
-    <meta charset="UTF-8">
-	<meta name="author" content="Blimps go 90">
+    <meta charset="UTF-8" />
+	<meta name="author" content="Blimps go 90" />
 </head>
 <body>
 
 <section id="status">Getting ready...</section>
 <section id="clock"></section>
+<section id="substatus">Running</section>
+<section id="ui">
+	<button id="pausebutton" onClick="javascript:rb.doPauseResume()">Pause</button>
+	<button id="forcebutton" onClick="javascript:rb.doRestWorkNow()">Rest Now</button>
+</section>
 
 <script src="vendor/jquery/jquery-1.8.3.min.js"></script>
 <script src="js/rb.js"></script>

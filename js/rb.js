@@ -15,6 +15,9 @@ rbGlobals.scriptUptime = 0; //total seconds script has been running
 rbGlobals.timeSinceLastClockUpdate = 0; //elapsed time in seconds since the last clock display update
 rbGlobals.clockUpdateFrequency = 60; //seconds to pass between clock display updates
 
+//ux tracking thingies
+rbGlobals.isPaused = false;
+
 //rb object that wraps all functions
 var rb;
 rb = {
@@ -46,25 +49,32 @@ rb = {
 
 	//updates the display with whatever is going on!
 	refresh: function() {
+		//first check to see if we are paused
+		if (!rbGlobals.isPaused)
+		{
+			//run the appropriate calcluations based off current status
+			switch (rbGlobals.currentStatus) {
+				case 'working':
+					rb.refreshWorking();
+					break;
+				case 'resting':
+					rb.refreshResting();
+					break;
+			}
 
-		//run the appropriate calcluations based off current status
-		switch (rbGlobals.currentStatus) {
-			case 'working':
-				rb.refreshWorking();
-				break;
-			case 'resting':
-				rb.refreshResting();
-				break;
+			//update the clock display
+			if (rbGlobals.timeSinceLastClockUpdate >= rbGlobals.clockUpdateFrequency)
+				rb.clockDisplayUpdate();
+			
+			//update the time until next update
+			rbGlobals.timeSinceLastClockUpdate = rbGlobals.timeSinceLastClockUpdate + 1;
+		} else {
+			//we will want to increase the time until the next event for each minute its paused
+			rbGlobals.nextEventTime = rbGlobals.nextEventTime + 1;
 		}
-
-		//update the clock display
-		if (rbGlobals.timeSinceLastClockUpdate >= rbGlobals.clockUpdateFrequency)
-			rb.clockDisplayUpdate();
-
-		//update statistics
+		
+		//update script uptime (regardless of pausing)
 		rbGlobals.scriptUptime = rbGlobals.scriptUptime + 1;
-		rbGlobals.timeSinceLastClockUpdate = rbGlobals.timeSinceLastClockUpdate + 1;
-
 	},
 
 	//fetches the current time in seconds since unix epoch
@@ -155,6 +165,60 @@ rb = {
 		document.title = rb.getStatus() + ' - ' + rb.getMinutesUntilNextEvent(currentTime,rbGlobals.nextEventTime) + ' minutes left.'
 	},
 
+	//pauses/resume timers
+	doPauseResume: function()
+	{
+		if (rbGlobals.isPaused)
+		{
+			console.log('Resuming');
+			rbGlobals.isPaused = false;
+			$('#substatus').html('Running');
+			$('#pausebutton').html('Pause');
+		} else {
+			console.log('Pausing');
+			rbGlobals.isPaused = true;
+			$('#substatus').html('Paused');
+			$('#pausebutton').html('Resume');
+		}
+
+		//call an immediate refresh
+		rb.refresh();
+
+		return true;
+	},
+
+	//forces a rest or work session switch
+	doRestWorkNow: function()
+	{
+		//make time until next event equal now plus a bit more
+		rbGlobals.nextEventTime = rb.getClock() + 1;
+		//switch our status
+		switch (rbGlobals.currentStatus) {
+			case 'working':
+				console.log('Forcing rest');
+				rb.refreshWorking();
+				$('#forcebutton').html('Work Now');
+				break;
+			case 'resting':
+				console.log('Forcing work');
+				rb.refreshResting();
+				$('#forcebutton').html('Rest Now');
+				break;
+		}
+
+		//force unpause if applicable
+		if (rbGlobals.isPaused)
+		{
+			rbGlobals.isPaused = false;
+			rb.doPauseResume();
+		}
+
+		//call an immediate refresh and display update
+		rb.refresh();
+		rb.clockDisplayUpdate();
+		
+		return true;
+	}
 }; //end of rb object
 
 //start our engines

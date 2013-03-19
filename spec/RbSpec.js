@@ -172,4 +172,61 @@ describe ("rb.js", function () {
 	  });
 
 	});
+
+	//test pause/resume
+	describe("doPauseResume()", function() {
+
+		//remember nextEventTime and scriptUptime to test
+		var rememberScriptUptime = rbGlobals.scriptUptime; 
+
+		it("Should not be paused at start", function() {
+			expect(rbGlobals.isPaused).toEqual(false);
+		});
+
+		it("Should pause when first called", function() {
+			rb.doPauseResume();
+			expect(rbGlobals.isPaused).toEqual(true);
+		});
+
+		it("Should increase nextEventTime when paused", function () {
+			var rememberNextEventTime = rbGlobals.nextEventTime;
+			rb.refresh();
+			expect(rbGlobals.nextEventTime).toBeGreaterThan(rememberNextEventTime);
+		});
+
+		it("Should increase scriptUptime when paused", function () {
+			var rememberScriptUptime = rbGlobals.scriptUptime;
+			rb.refresh();
+			expect(rbGlobals.scriptUptime).toBeGreaterThan(rememberScriptUptime);
+		});
+
+		it("Should resume when next called", function () {
+			rb.doPauseResume();
+			expect(rbGlobals.isPaused).toEqual(false);
+		});
+
+
+		it("Should not increase nextEventTime after resume after waiting", function () {
+			var rememberNextEventTime = rbGlobals.nextEventTime;
+			waits('1000'); //wait a sec
+			expect(rbGlobals.nextEventTime).toEqual(rememberNextEventTime);
+		});
+
+	});
+
+	//test forcing rest and work
+	describe("doRestWorkNow()", function() {
+
+		it("Should force set status to resting when first called", function() {
+			rb.doRestWorkNow();
+			expect(rbGlobals.currentStatus).toEqual('resting');
+		});
+
+		it("Should force set status to working when called again", function() {
+			rb.doRestWorkNow();
+			expect(rbGlobals.currentStatus).toEqual('working');
+		});
+		
+	});
+
 });
